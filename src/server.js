@@ -2,7 +2,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import pino from 'pino-http';
-import pinoPretty from 'pino-pretty';
 
 dotenv.config();
 const app = express();
@@ -17,7 +16,7 @@ app.get('/notes', (req, res) => {
     message: 'Retrieved all notes',
   });
 });
-app.get('/notes/:noteID', (req, res) => {
+app.get('/notes/:noteId', (req, res) => {
   const { noteId } = req.params;
   res.status(200).json({
     message: `Retrieved note with ID: ${noteId}`,
