@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 export const startServer = async () => {
   const app = express();
 
-  app.use(logger());
+  app.use(logger);
   app.use(cors());
   app.use(express.json());
 
