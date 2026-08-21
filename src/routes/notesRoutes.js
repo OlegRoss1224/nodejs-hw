@@ -7,7 +7,7 @@ import {
   updateNote,
 } from '../controllers/notesController.js';
 
-const router = express.Router;
+const router = express.Router();
 
 router.get('/notes', getAllNotes);
 router.get('/notes/:noteId', getNoteById);
