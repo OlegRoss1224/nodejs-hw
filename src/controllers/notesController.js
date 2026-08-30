@@ -3,8 +3,39 @@ import createError from 'http-errors';
 
 export const getAllNotes = async (req, res, next) => {
   try {
-    const notes = await Note.find();
-    res.status(200).json(notes);
+    const { tag, search, page = 1, perPage = 10 } = req.query;
+
+    const pageNumber = Number(page);
+    const perPageNumber = Number(perPage);
+    const skip = (pageNumber - 1) * perPageNumber;
+
+    const filter = {};
+
+    if (tag) {
+      filter.tag = tag;
+    }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const [totalNotes, notes] = await Promise.all([
+      Note.countDocuments(filter),
+      Note.find(filter).skip(skip).limit(perPageNumber),
+    ]);
+
+    const totalPages = Math.ceil(totalNotes / perPageNumber);
+
+    res.status(200).json({
+      page: pageNumber,
+      perPage: perPageNumber,
+      totalNotes,
+      totalPages,
+      notes,
+    });
   } catch (error) {
     next(error);
   }
@@ -23,6 +54,7 @@ export const getNoteById = async (req, res, next) => {
     next(error);
   }
 };
+
 export const createNote = async (req, res, next) => {
   try {
     const note = await Note.create(req.body);
@@ -31,6 +63,7 @@ export const createNote = async (req, res, next) => {
     next(error);
   }
 };
+
 export const deleteNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
@@ -45,6 +78,7 @@ export const deleteNote = async (req, res, next) => {
     next(error);
   }
 };
+
 export const updateNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;

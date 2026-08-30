@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { errors } from 'celebrate';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
@@ -20,6 +21,7 @@ export const startServer = async () => {
 
   app.use(notesRouter);
 
+  app.use(errors());
   app.use(notFoundHandler);
   app.use(errorHandler);
 
@@ -33,4 +35,5 @@ export const startServer = async () => {
     console.error('Failed to start server:', error);
   }
 };
+
 startServer();
