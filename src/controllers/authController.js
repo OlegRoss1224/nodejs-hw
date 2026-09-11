@@ -4,6 +4,18 @@ import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 
+const clearSessionCookies = (res) => {
+  const commonCookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+  };
+
+  res.clearCookie('accessToken', commonCookieOptions);
+  res.clearCookie('refreshToken', commonCookieOptions);
+  res.clearCookie('sessionId', commonCookieOptions);
+};
+
 export const registerUser = async (req, res, next) => {
   const { email, password, username } = req.body;
 
@@ -51,6 +63,7 @@ export const refreshUserSession = async (req, res, next) => {
   const { sessionId, refreshToken } = req.cookies;
 
   if (!sessionId || !refreshToken) {
+    clearSessionCookies(res);
     throw createHttpError(401, 'Session not found');
   }
 
@@ -60,6 +73,7 @@ export const refreshUserSession = async (req, res, next) => {
   });
 
   if (!session) {
+    clearSessionCookies(res);
     throw createHttpError(401, 'Session not found');
   }
 
@@ -67,6 +81,10 @@ export const refreshUserSession = async (req, res, next) => {
     new Date() > new Date(session.refreshTokenValidUntil);
 
   if (isSessionExpired) {
+    await Session.deleteOne({ _id: sessionId });
+
+    clearSessionCookies(res);
+
     throw createHttpError(401, 'Session token expired');
   }
 
@@ -87,15 +105,7 @@ export const logoutUser = async (req, res, next) => {
     await Session.deleteOne({ _id: sessionId });
   }
 
-  const commonCookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-  };
-
-  res.clearCookie('accessToken', commonCookieOptions);
-  res.clearCookie('refreshToken', commonCookieOptions);
-  res.clearCookie('sessionId', commonCookieOptions);
+  clearSessionCookies(res);
 
   res.status(204).send();
 };

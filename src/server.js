@@ -26,7 +26,7 @@ export const startServer = async () => {
     res.status(200).json({ message: 'Server is running!' });
   });
 
-  app.use('/auth', authRouter);
+  app.use(authRouter);
   app.use(notesRouter);
 
   app.use(errors());
