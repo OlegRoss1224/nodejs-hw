@@ -34,7 +34,7 @@ export const getAllNotes = async (req, res, next) => {
     res.status(200).json({
       page: pageNumber,
       perPage: perPageNumber,
-      totalItems: totalItems,
+      totalNotes: totalItems,
       totalPages,
       notes,
     });
