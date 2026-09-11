@@ -7,6 +7,8 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRouter from './routes/notesRoutes.js';
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -24,6 +26,9 @@ export const startServer = async () => {
   app.use(errors());
   app.use(notFoundHandler);
   app.use(errorHandler);
+
+  app.use(cookieParser());
+  app.use('/auth', authRouter);
 
   try {
     await connectMongoDB();
